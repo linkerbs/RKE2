@@ -1,0 +1,14 @@
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://student-3-aio.c.rancher-training-342718.internal"
+configs:
+  "student-3-aio.c.rancher-training-342718.internal":
+    auth:
+      username: rke2 # this is the registry username
+      password: rke2 # this is the registry password
+    tls:
+      #cert_file:            # path to the cert file used to authenticate to the registry
+      #key_file:             # path to the key file for the certificate used to authenticate to the registry
+      #ca_file:              # path to the ca file used to verify the registry's certificate
+      insecure_skip_verify: true

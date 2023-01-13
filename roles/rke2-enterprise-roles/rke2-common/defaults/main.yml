@@ -1,0 +1,16 @@
+---
+# defaults file for rke2-package
+rke2_method: rpm
+rke2_channel: latest
+rke2_version: latest
+registries: 
+- mirror: docker.io
+  endpoint: student-3-aio.c.rancher-training-342718.internal
+  username: rke2
+  password: rke2
+  tls_insecure: 'true'
+artifacts_url: https://github.com/rancher/rke2/releases/download
+install_url: https://get.rke2.io
+mirror_registries: false 
+#download_tar_images: false
+#download_tar_image_name: rke2-images.linux-amd64.tar.zst

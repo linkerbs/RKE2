@@ -1,0 +1,48 @@
+---
+# tasks file for rke2-package
+- name: Assertion
+  assert:
+    that:
+      - rke2_node_type is defined
+      - rke2_method is defined
+      - rke2_version is defined
+- name: Debug Facts
+  debug: 
+    msg: "{{ ansible_fqdn }} -> {{ rke2_node_type }} -> {{ rke2_method }}"
+- name: Check service firewalld
+  command: systemctl is-active firewalld
+  register: firewalld_service
+  failed_when: false
+  changed_when: firewalld_service.rc == 0
+
+- name: Firewalld disabled
+  service:
+    name: firewalld
+    enabled: false
+    state: stopped
+  when:
+  - firewalld_service.changed
+
+- name: rke2 installer script downloaded
+  get_url:
+    url: "{{ install_url | default('https://get.rke2.io') }}"
+    dest: /usr/local/bin/rke-install.sh
+    mode: 0700
+  tags:
+  - disconnected
+- name: rke2 installer executed
+  command: /usr/local/bin/rke-install.sh
+  environment:
+    INSTALL_RKE2_TYPE: "{{ rke2_node_type }}"
+    INSTALL_RKE2_METHOD: "{{ rke2_method }}"
+    INSTALL_RKE2_VERSION: "{{ rke2_version }}"
+  when:
+    - disconnected is not defined or not disconnected
+- name: Disconnected installation
+  import_tasks: disconnected.yaml
+  when: 
+  - disconnected is defined
+  - disconnected 
+  tags:
+  - disconnected
+

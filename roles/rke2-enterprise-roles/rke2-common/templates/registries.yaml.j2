@@ -1,0 +1,21 @@
+{% if mirror_registries|bool %}
+mirrors:
+{% for registry in registries %}
+  {{ registry['mirror'] }}:
+    endpoint:
+    - "{{ registry['endpoint'] }}"
+{% endfor %}
+{% endif %}
+
+configs:
+{% for registry in registries %}
+  "{{ registry['endpoint'] }}":
+{% if registry['username'] is defined %}
+    auth:
+      username: {{ registry['username'] }} # this is the registry username
+      password: {{ registry['password'] }} # this is the registry password
+{% endif %}
+    tls:
+      #ca_file:              # path to the ca file used to verify the registry's certificate
+      insecure_skip_verify: {{ registry['tls_insecure']|default('true') }}
+{% endfor %}

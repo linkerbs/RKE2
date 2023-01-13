@@ -1,0 +1,59 @@
+#- name: RPM set path for cache
+#  set_fact:
+#    rpm_images_path: /var/lib/rancher/rke2/agent/images
+#  when:
+#    - rke2_method == 'rpm'
+- name: Local Images cache
+  set_fact:
+    local_cache_images: "{{ rpm_images_path | default('/opt/artifacts') }}"
+- name: Artifacts dir exists
+  file:
+    path: "{{ local_cache_images }}"
+    recurse: true
+    state: directory
+- name: Download artifacts
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ local_cache_images }}/{{ item | basename }}"
+  loop:
+    - "{{ artifacts_url }}/{{ rke2_version }}/rke2.linux-amd64.tar.gz"
+    - "{{ artifacts_url }}/{{ rke2_version }}/sha256sum-amd64.txt"
+  when:
+    - rke2_method == 'tar'
+
+#- name: Download artifacts (images)
+#  get_url:
+#    url: "{{ item }}"
+#    dest: "{{ local_cache_images }}/{{ item | basename }}"
+#  loop:
+#    - "{{ artifacts_url }}/{{ rke2_version }}/rke2-images.linux-amd64.tar.zst"
+#  when:
+#    - download_tar_images    
+- name: rke2 dir exists
+  file:
+    path: /etc/rancher/rke2
+    state: directory
+    recurse: true
+- name: Registries configured
+  template:
+    src: registries.yaml.j2
+    dest: /etc/rancher/rke2/registries.yaml
+  
+- name: rke2 installer executed (tar)
+  command: /usr/local/bin/rke-install.sh
+  environment:
+    INSTALL_RKE2_TYPE: "{{ rke2_node_type }}"
+    INSTALL_RKE2_METHOD: "{{ rke2_method }}"
+    INSTALL_RKE2_VERSION: "{{ rke2_version }}"
+    INSTALL_RKE2_ARTIFACT_PATH: /opt/artifacts
+  when:
+    - rke2_method == 'tar'
+
+- name: rke2 installer executed (rpm)
+  command: /usr/local/bin/rke-install.sh
+  environment:
+    INSTALL_RKE2_TYPE: "{{ rke2_node_type }}"
+    INSTALL_RKE2_METHOD: "{{ rke2_method }}"
+    INSTALL_RKE2_VERSION: "{{ rke2_version }}"
+  when:
+    - rke2_method == 'rpm'

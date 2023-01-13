@@ -1,0 +1,32 @@
+---
+- name: haproxy_password must be defined
+  assert:
+    that:
+      - haproxy_password is defined
+
+- name: Ha proxy installed
+  yum:
+    name: haproxy
+    state: present
+- name: SELinux bool state
+  shell: getsebool haproxy_connect_any |awk -F"-->" ' { print $2 }'|xargs
+  register: haproxy_bool
+  changed_when: false
+  
+- name: SELinux boot configured
+  shell: setsebool -P haproxy_connect_any=on
+  when:
+  - haproxy_bool.stdout == 'off'
+
+- name: HA Proxy Configured
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify:
+    - restart_haproxy
+  
+- name: HA proxy started
+  service:
+    name: haproxy
+    enabled: true
+    state: started

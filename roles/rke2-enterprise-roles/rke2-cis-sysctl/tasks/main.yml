@@ -1,0 +1,20 @@
+---
+# tasks file for rke2-cis-sysctl
+- name: Sysctl for RPM for CIS applied
+  copy:
+    src: /usr/share/rke2/rke2-cis-sysctl.conf
+    dest: /etc/sysctl.d/60-rke2-cis.conf
+    remote_src: true
+  when:
+  - rke2_method == 'rpm'
+  notify:
+  - restart_sysctl
+- name: Sysctl for TAR for CIS applied
+  copy:
+    src: /usr/local/share/rke2/rke2-cis-sysctl.conf
+    dest: /etc/sysctl.d/60-rke2-cis.conf
+    remote_src: true
+  when:
+  - rke2_method == 'tar'
+  notify:
+  - restart_sysctl

@@ -1,0 +1,24 @@
+# defaults file for rke2-package
+registries: 
+- mirror: docker.io
+  endpoint: rke2-registry.192-168-13-162.nip.io:8443
+  username: rke2
+  password: rke2
+  tls_insecure: 'true'
+artifacts_url: http://192.168.13.162:8080/artifacts
+install_url: http://192.168.13.162:8080/rke-install.sh
+mirror_registries: false
+#download_tar_images: false
+#download_tar_image_name: rke2-images.linux-amd64.tar.zst
+
+cis: 'false'
+cluster_api_fqdn: student-0-aio
+cluster_cidr: 10.1.0.0/16
+disconnected: 'true'
+master_api_fqdn: student-0-aio
+master_taint: 'false'
+
+rke2_method: tar
+rke2_node_type: server
+rke2_version: v1.24.8+rke2r1
+service_cidr: 172.1.0.0/16

@@ -1,0 +1,22 @@
+---
+- name: Assertion
+  assert:
+    that:
+      - rke2_method is defined
+      - rke2_node_type == 'agent'
+- name: Set Token Fact
+  set_fact:
+    token: "{{ lookup('file', playbook_dir + '/token') }}"
+
+  
+- name: Config dir exists
+  file:
+    path: /etc/rancher/rke2/
+    state: directory
+    recurse: True
+- name: Server Config applied
+  template:
+    dest: /etc/rancher/rke2/config.yaml
+    src: agent-config.yaml.j2
+  notify:
+    - restart_agent

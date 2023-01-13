@@ -1,0 +1,31 @@
+[all:vars]
+rke2_method=rpm
+#rke2_channel=v1.24 ### YA NO ES SOPORTADO
+rke2_version=v1.24.8+rke2r1
+cluster_api_fqdn=master.itmlabs.io
+master_api_fqdn=master.itmlabs.io
+master_taint=false
+#cluster_cidr=10.211.0.0/16
+#service_cidr=172.211.0.0/16
+cis=false
+
+[masters:vars]
+rke2_node_type=server
+
+[workers:vars]
+rke2_node_type=agent
+
+[ingress:vars]
+
+
+[masters]
+master ansible_host=192.168.13.169
+[workers]
+worker ansible_host=192.168.13.171
+
+
+[lb]
+[bootstrap]
+master
+[ingress]
+master

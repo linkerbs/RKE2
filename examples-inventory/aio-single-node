@@ -1,0 +1,25 @@
+[all:vars]
+rke2_method=rpm
+#rke2_channel=v1.24 ### YA NO ES SOPORTADO
+rke2_version=v1.24.8+rke2r1
+cluster_api_fqdn=student-0-aio
+master_api_fqdn=student-0-aio
+master_taint=false
+cluster_cidr=10.1.0.0/16
+service_cidr=172.1.0.0/16
+cis=false
+
+[masters:vars]
+rke2_node_type=server
+
+[workers:vars]
+rke2_node_type=agent
+
+[masters]
+student-0-aio ansible_host=34.168.220.88
+[workers]
+[lb]
+[bootstrap]
+student-0-aio 
+[ingress]
+student-0-aio

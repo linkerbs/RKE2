@@ -1,0 +1,55 @@
+---
+- name: Prepare LB
+  hosts: all
+  become: true
+  vars:
+    haproxy_password: 4dm1np4ss
+  tags:
+    - lb
+
+  tasks:
+  - import_role:
+      name: rke2-enterprise-roles/haproxy
+    when:
+    - inventory_hostname in groups['lb']
+#  - import_role:
+#      role: rke2-enterprise-roles/rke2-common
+#    when:
+#      - inventory_hostname in groups['masters'] or inventory_hostname in groups['workers']  
+
+- name: Setup Masters
+  hosts: masters
+  become: true
+  tags:
+  - masters
+  serial: 1
+
+  tasks:
+
+  - import_role:
+      role: rke2-enterprise-roles/rke2-common
+  - block:
+    - import_role:
+        role: rke2-enterprise-roles/rke2-cis-sysctl   
+    when:
+      cis == true
+  - import_role:
+      role: rke2-enterprise-roles/rke2-master
+
+- name: Setup Workers
+  hosts: workers
+  become: true
+  tags:
+  - workers
+
+  tasks:
+  - import_role:
+      role: rke2-enterprise-roles/rke2-common
+  - import_role:
+      role: rke2-enterprise-roles/rke2-cis-sysctl
+    when:
+      cis == true
+  - import_role:
+      role: rke2-enterprise-roles/rke2-worker
+    
+

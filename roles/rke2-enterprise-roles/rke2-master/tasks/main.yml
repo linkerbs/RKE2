@@ -1,0 +1,87 @@
+---
+# tasks file for rke2-master
+- name: Assertion
+  assert:
+    that:
+      - rke2_method is defined
+      - rke2_node_type == 'server'
+- name: Create etcd user
+  user:
+    name: etcd
+    shell: /sbin/nologin
+  when:
+    - cis == true
+
+- name: Config dir exists
+  file:
+    path: /etc/rancher/rke2/
+    state: directory
+    recurse: True
+
+- block:
+  - name: Server Config applied for bootstrap
+    template:
+      dest: /etc/rancher/rke2/config.yaml
+      src: server-config.yaml.j2
+    register: config_updated
+  - name: Copy custom manifests
+    copy:
+      src: "{{ item }}"
+      dest: /var/lib/rancher/rke2/server/manifests/
+    with_fileglob:
+      - "custom_helm/*"
+    when:
+      - custom_helm is defined
+      - custom_helm == "true"  
+    register: custom_helm_files
+  - name: RKE2-server Config in bootstrap updated
+    service:
+     name: rke2-server
+     state: restarted
+    when:
+     - config_updated.changed or custom_helm_files.changed|default(false)
+  - name: RKE2-server started in bootstrap node
+    service:
+     name: rke2-server
+     state: started
+     enabled: true
+  - name: Get TOKEN from bootstrap
+    fetch:
+      src: /var/lib/rancher/rke2/server/node-token
+      dest: token
+      flat: yes
+  when:
+      - inventory_hostname in groups['bootstrap']  
+
+- name: Set Token Fact using Downloaded File
+  set_fact:
+    token: "{{ lookup('file', playbook_dir + '/token') }}"
+  when:
+    - inventory_hostname not in groups['bootstrap']
+   
+- name: Server Config applied
+  template:
+    dest: /etc/rancher/rke2/config.yaml
+    src: server-config.yaml.j2
+  notify:
+    - restart_server
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Wait until Cluster API is UP
+  uri:
+    url: https://localhost:9345/cacerts
+    return_content: yes
+    validate_certs: no
+    status_code:
+      - 200
+  until: uri_output.status == 200
+  retries: 24 # Retries for 24 * 5 seconds = 120 seconds = 2 minutes
+  delay: 15 # Every 5 seconds
+  register: uri_output
+
+- name: Wait for Node to be Ready
+  shell: /var/lib/rancher/rke2/bin/kubectl wait --timeout=800s --for=condition=Ready=true node  {{ ansible_fqdn }}
+  environment:
+    KUBECONFIG: /etc/rancher/rke2/rke2.yaml

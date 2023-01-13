@@ -1,0 +1,28 @@
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: ClusterOutput
+metadata:
+  name: elasticsearch
+  namespace: cattle-logging-system
+spec:
+  elasticsearch:
+    buffer:
+      timekey: 1m
+      timekey_wait: 0s
+    ca_file:
+      mountFrom:
+        secretKeyRef:
+          key: ca
+          name: elasticsearch
+    host: student-9-aio.c.rancher-training-342718.internal
+    logstash_format: true
+    logstash_prefix: rke2
+    password:
+      valueFrom:
+        secretKeyRef:
+          key: password
+          name: elasticsearch
+    port: 9200
+    scheme: https
+    ssl_verify: false
+    user: elastic
+

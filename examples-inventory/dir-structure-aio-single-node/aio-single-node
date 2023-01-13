@@ -1,0 +1,14 @@
+[masters:vars]
+rke2_node_type=server
+
+[workers:vars]
+rke2_node_type=agent
+
+[masters]
+rke2-suse ansible_host=192.168.13.163
+[workers]
+[lb]
+[bootstrap]
+rke2-suse
+[ingress]
+rke2-suse

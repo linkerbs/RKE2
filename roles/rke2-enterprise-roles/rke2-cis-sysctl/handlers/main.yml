@@ -1,0 +1,6 @@
+---
+# handlers file for rke2-cis-sysctl
+- name: restart_sysctl
+  service:
+    name: systemd-sysctl
+    state: restarted

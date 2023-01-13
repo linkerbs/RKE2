@@ -1,0 +1,33 @@
+# Initial Configuration
+# Updated
+node-name: {{ ansible_fqdn }}
+{% if inventory_hostname not in groups['bootstrap'] %}
+server: https://{{ cluster_api_fqdn }}:9345
+token: "{{ token }}"
+{% endif %}
+tls-san:
+  - "{{ master_api_fqdn }}"
+{% if master_taint | bool %}
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
+{% endif %}
+cluster-cidr: {{ cluster_cidr | default('10.42.0.0/16') }}
+service-cidr: {{ service_cidr | default('10.43.0.0/16') }}
+{% if cis | bool %}
+secrets-encryption: "true"
+profile: "cis-1.6"
+{% endif %}
+{% if node_labels is defined %}
+node-label:
+{% for label in node_labels %}
+- {{ label }}
+{% endfor %}
+{% endif %}
+resolv-conf: /etc/resolv.conf
+kubelet-arg:
+{% for kubelet_arg in kubelet_args %}
+- "{{ kubelet_arg }}"
+{% endfor %}
+{% if disconnected|bool %}
+system-default-registry: "{{ registries[0]['endpoint'] }}"
+{% endif %}

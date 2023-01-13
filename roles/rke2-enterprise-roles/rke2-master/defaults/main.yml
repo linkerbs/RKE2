@@ -1,0 +1,14 @@
+---
+# defaults file for rke2-master
+custom_charts: false
+reserved_resources:
+  cpu: 100m
+  memory: 128Mi
+  storage: 1Gi
+  min_memory: 512Mi
+  min_fsnodefs: 3%
+
+kubelet_args:
+  - system-reserved=cpu={{ reserved_resources.cpu }},memory={{ reserved_resources.memory }},ephemeral-storage={{ reserved_resources.storage }}
+  - kube-reserved=cpu={{ reserved_resources.cpu }},memory={{ reserved_resources.memory }},ephemeral-storage={{ reserved_resources.storage }}
+  - eviction-hard=memory.available<{{ reserved_resources.min_memory }},nodefs.available<{{ reserved_resources.min_fsnodefs }}

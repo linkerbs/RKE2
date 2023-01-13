@@ -1,0 +1,17 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-ingress-nginx
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    controller:
+      nodeSelector:
+        kubernetes.io/os: linux
+        app: "ingress"
+      tolerations:
+        - key: "nodetype"
+          operator: "Equal"
+          value: "ingress"
+          effect: "NoSchedule"

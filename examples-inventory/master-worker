@@ -1,0 +1,37 @@
+[all:vars]
+rke2_method=rpm
+#rke2_channel=v1.24 ### YA NO ES SOPORTADO
+rke2_version=v1.24.8+rke2r1
+cluster_api_fqdn=student-2-aio.c.rancher-training-342718.internal
+master_api_fqdn=student-2-aio.c.rancher-training-342718.internal
+master_taint=false
+#cluster_cidr=10.211.0.0/16
+#service_cidr=172.211.0.0/16
+cis=false
+
+[masters:vars]
+rke2_node_type=server
+#reserved_resources={'cpu' : '100m','memory' : '128Mi','storage' : '1Gi', 'min_memory' : '512Mi', 'min_fsnodefs': '3%'} #Default values
+
+
+[workers:vars]
+rke2_node_type=agent
+reserved_resources={'cpu' : '101m','memory' : '128Mi','storage' : '1Gi', 'min_memory' : '512Mi', 'min_fsnodefs': '2%'}
+kubelet_extra_args=['max-pods=250']
+
+[ingress:vars]
+node_labels=['app=ingress'] # Esta etiqueta es requerida para el funcionamiento del Ingress, check the template in rke2-worker role
+
+
+[masters]
+student-2-aio ansible_host=34.105.49.88
+[workers]
+student-5-aio ansible_host=34.105.36.147
+#student-6-aio ansible_host=34.168.207.246
+
+[lb]
+[bootstrap]
+student-2-aio
+[ingress]
+student-5-aio
+#student-6-aio

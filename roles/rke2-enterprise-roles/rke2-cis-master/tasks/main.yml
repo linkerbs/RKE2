@@ -1,0 +1,6 @@
+---
+# tasks file for rke2-cis-master
+- name: Create etcd user
+  user:
+    name: etcd
+    shell: /sbin/nologin
